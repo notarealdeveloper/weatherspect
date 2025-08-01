@@ -4476,6 +4476,20 @@ sub add_cow {
 (__)\       )\/\
   ||----w |
   ||     ||
+#,
+        q#
+^__^
+(oo)\_______
+(__)\       )/\/
+  ||----w |
+ / |    / |
+#,
+        q#
+^__^
+(oo)\_______
+(__)\       )\/\
+  ||----w |
+  ||     ||
 #);
 
     my @cow_mask = (
@@ -4487,21 +4501,34 @@ YYYYY       YRRR
  Y Y    Y Y
 #,
         q#
- BBBB
+BBBB
+BGGBBBBBBBBB
+BBBBB       BGGG
+  BBBBBBG B
+  BB     BB
+#,
+        q#
+YYYY
+YRRYYYYYYYYY
+YYYYY       YRRR
+  YYYYYYR Y
+ Y Y    Y Y
+#,
+        q#
+BBBB
 BGGBBBBBBBBB
 BBBBB       BGGG
   BBBBBBG B
   BB     BB
 #);
 
-    my $cow_type = int(rand(1));
+    my $cow_type = int(rand(3));
     if ($cow_type == 0) {
-        @cow_mask = map {s/G/R/g;
+        @cow_mask = map {s/B/W/g;
             $_;} @cow_mask;
     }
     elsif ($cow_type == 1) {
-        @cow_mask = map {s/R/G/g;
-            s/Y/R/g;
+        @cow_mask = map {s/Y/W/g;
             $_;} @cow_mask;
     }
 
