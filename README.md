@@ -24,6 +24,10 @@ You must have the Term::Animation module, which you can get from
 http://www.cpan.org. The Term::Animation module also requires the
 Curses module, which you can also get from CPAN.
 
+License
+-------
+https://spdx.org/licenses/GPL-2.0-only.html
+
 Contributors
 ------------
 
