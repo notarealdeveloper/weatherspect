@@ -364,8 +364,6 @@ sub update_weather {
         wind_kilometersperhour
     /;
 
-    dlog(Dumper($new_weather));
-
     if (defined($new_weather)) {
 
         foreach my $field (keys %{$new_weather}) {
@@ -4868,20 +4866,6 @@ sub debug_weather {
         $w[0]{'conditions'} = "heavy " . $w[0]{'conditions'};
     }
     return \@w;
-}
-
-# write to the debug log
-sub dlog {
-    my ($mesg) = @_;
-
-    open(D, ">>", "debug");
-    print D "$mesg\n";
-    close(D);
-
-    push(@{$current->{'debug_log'}}, $mesg);
-    if (@{$current->{'debug_log'}} > 10) {
-        shift @{$current->{'debug_log'}};
-    }
 }
 
 BEGIN {
