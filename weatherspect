@@ -4919,129 +4919,6 @@ BEGIN {
         $MODULES{$_} = $@ ? 0 : 1;
     }
 
-    #
-    # Public methods:
-    #
-
-    sub new {
-        my $class = shift;
-        my $self;
-        my %parameters;
-        my $module;
-        my $raw;
-        my $cache;
-        my $units;
-        local (*FH);
-
-        if (ref($_[0]) eq "HASH") {
-            %parameters = %{$_[0]};
-        }
-        else {
-            %parameters = @_;
-        }
-
-        $DEBUG = $parameters{debug};
-        _debug("Creating a new $MYNAME object");
-        if (!$parameters{place}) {
-            _debug("ERROR: Location not specified");
-            return undef;
-        }
-
-        $units = $parameters{units};
-
-        $self = {
-            "place"   => $parameters{place},
-            "timeout" => $parameters{timeout},
-            "_url"    => $APIURL . '?' . $APIURLQUERY . '=' . $parameters{place} . '&APPID=' . $APIKEY . '&units=' . $units
-        };
-        bless($self, $class);
-        return $self;
-    }
-
-    sub get_weather {
-        my ($self) = @_;
-        my $document;
-        my $json;
-        my $token;
-        my %state;
-        my $text;
-        my $arrayref = [];
-        my $oldagent;
-        my $cpoints;
-        local (*FH);
-
-        _debug("Getting weather info for " . $self->{place});
-
-        _debug("Retrieving url " . $self->{_url});
-
-        if ($self->{timeout}) {
-            _debug("Setting timeout for LWP::Simple's LWP::UserAgent object to $self->{timeout}");
-            $ua->timeout($self->{timeout});
-        }
-        $oldagent = $ua->agent();
-        $ua->agent("Weather::OpenWeatherMap version $VERSION");
-        $document = get($self->{_url});
-        $ua->agent($oldagent);
-
-        if (!$document) {
-            _debug("Could not retrieve " . $self->{_url});
-            return undef;
-        }
-        else {
-            _debug("I retrieved the following data:\n\n\n\n\n$document\n\n\n\n\n");
-        }
-
-        $json = JSON->new->utf8->decode($document);
-
-        if ($json->{cod} != 200) {
-            _debug("API error:\n$json->{cod}\n$json->{message}\n");
-            return undef;
-        }
-
-        $cpoints = Compass::Points->new();
-
-        return {
-            place                  => $json->{name},
-            updated                => $json->{dt},
-            temperature_celsius    => $json->{main}->{temp},
-            temperature_fahrenheit => $json->{main}->{temp},
-            celsius                => $json->{main}->{temp},
-            fahrenheit             => $json->{main}->{temp},
-            humidity               => $json->{main}->{humidity},
-            dewpoint_celsius       => $json->{dt},
-            dewpoint_fahrenheit    => $json->{dt},
-            wind_direction         => $cpoints->deg2abbr($json->{wind}->{deg}),
-            wind_milesperhour      => $json->{wind}->{speed},
-            wind_kilometersperhour => $json->{wind}->{speed},
-            pressure               => $json->{main}->{pressure},
-            conditions             => $json->{weather}->[0]->{main},
-            visibility_miles       => $json->{visibility},
-            visibility_kilometers  => $json->{visibility},
-            clouds                 => $json->{clouds}->{all},
-            sunrise                => $json->{sys}->{sunrise},
-            sunset                 => $json->{sys}->{sunset},
-            moonrise               => $json->{dt},
-            moonset                => $json->{dt},
-            moonphase              => $json->{name},
-        };
-    }
-
-    ##################################################################################################################################
-    #
-    # Internal subroutines
-    #
-    sub _debug {
-        my $notice = shift;
-        $@ = $notice;
-        if ($DEBUG) {
-            print "$MYNAME DEBUG NOTE: $notice\n";
-            open(my $fh, '>>', $LOGFILE) or die "Could not open file '$LOGFILE' $!";
-            print $fh "$MYNAME DEBUG NOTE: $notice\n";
-            close $fh;
-            return 1;
-        }
-        return 0;
-    }
 =head1 NAME
 
 Weather::OpenWeatherMap - Perl extension
@@ -5282,6 +5159,132 @@ Copyright (C) 2018 Edgar (Edgar@AnotherFoxGuy).  All rights reserved.  Use is su
 
 =cut
 
+    #
+    # Public methods:
+    #
+
+    sub new {
+        my $class = shift;
+        my $self;
+        my %parameters;
+        my $module;
+        my $raw;
+        my $cache;
+      my $units;
+        local (*FH);
+
+        if (ref($_[0]) eq "HASH") {
+            %parameters = %{ $_[0] };
+        }
+        else {
+            %parameters = @_;
+        }
+
+        $DEBUG = $parameters{debug};
+        _debug("Creating a new $MYNAME object");
+        if (!$parameters{place}) {
+            _debug("ERROR: Location not specified");
+            return undef;
+        }
+
+      $units = $parameters{units};
+
+        $self = {
+            "place"   => $parameters{place},
+            "timeout" => $parameters{timeout},
+            "_url"    => $APIURL . '?' . $APIURLQUERY . '=' . $parameters{place} . '&APPID=' . $APIKEY . '&units=' . $units
+        };
+        bless($self, $class);
+        return $self;
+    }
+
+    sub get_weather {
+        my ($self) = @_;
+        my $document;
+        my $json;
+        my $token;
+        my %state;
+        my $text;
+        my $arrayref = [];
+        my $oldagent;
+      my $cpoints;
+        local (*FH);
+
+        _debug("Getting weather info for " . $self->{place});
+
+        _debug("Retrieving url " . $self->{_url});
+
+        if ($self->{timeout}) {
+            _debug("Setting timeout for LWP::Simple's LWP::UserAgent object to $self->{timeout}");
+            $ua->timeout($self->{timeout});
+        }
+        $oldagent = $ua->agent();
+        $ua->agent("Weather::OpenWeatherMap version $VERSION");
+        $document = get($self->{_url});
+        $ua->agent($oldagent);
+
+        if (!$document) {
+            _debug("Could not retrieve " . $self->{_url});
+            return undef;
+        }
+        else {
+            _debug("I retrieved the following data:\n\n\n\n\n$document\n\n\n\n\n");
+        }
+
+
+      $json = JSON->new->utf8->decode($document);
+
+      if($json->{cod} != 200){
+          _debug("API error:\n$json->{cod}\n$json->{message}\n");
+        return undef;
+      }
+
+
+      $cpoints = Compass::Points->new();
+
+      return {
+          place                  => $json->{name},
+          updated                => $json->{dt},
+          temperature_celsius    => $json->{main}->{temp},
+          temperature_fahrenheit => $json->{main}->{temp},
+          celsius                => $json->{main}->{temp},
+          fahrenheit             => $json->{main}->{temp},
+          humidity               => $json->{main}->{humidity},
+          dewpoint_celsius       => $json->{dt},
+          dewpoint_fahrenheit    => $json->{dt},
+          wind_direction         => $cpoints->deg2abbr($json->{wind}->{deg}),
+          wind_milesperhour      => $json->{wind}->{speed},
+          wind_kilometersperhour => $json->{wind}->{speed},
+          pressure               => $json->{main}->{pressure},
+          conditions             => $json->{weather}->[0]->{main},
+          visibility_miles       => $json->{visibility},
+          visibility_kilometers  => $json->{visibility},
+          clouds                 => $json->{clouds}->{all},
+          sunrise                => $json->{sys}->{sunrise},
+          sunset                 => $json->{sys}->{sunset},
+          moonrise               => $json->{dt},
+          moonset                => $json->{dt},
+          moonphase              => $json->{name},
+        };
+    }
+
+    ##################################################################################################################################
+    #
+    # Internal subroutines
+    #
+    sub _debug {
+        my $notice = shift;
+        $@ = $notice;
+        if ($DEBUG) {
+        print "$MYNAME DEBUG NOTE: $notice\n";
+        open(my $fh, '>>', $LOGFILE) or die "Could not open file '$LOGFILE' $!";
+        print $fh "$MYNAME DEBUG NOTE: $notice\n";
+        close $fh;
+            return 1;
+        }
+        return 0;
+    }
+
 
     #
     # Leave me alone:
@@ -5463,462 +5466,4 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =cut
-}
-
-
-BEGIN{
-    package JSON;
-
-
-    use strict;
-    use Carp ();
-    use Exporter;
-    BEGIN {@JSON::ISA = 'Exporter'}
-
-    @JSON::EXPORT = qw(from_json to_json jsonToObj objToJson encode_json decode_json);
-
-    BEGIN {
-        $JSON::VERSION = '4.02';
-        $JSON::DEBUG = 0 unless (defined $JSON::DEBUG);
-        $JSON::DEBUG = $ENV{ PERL_JSON_DEBUG } if exists $ENV{ PERL_JSON_DEBUG };
-    }
-
-    my %RequiredVersion = (
-        'JSON::PP' => '2.27203',
-        'JSON::XS' => '2.34',
-    );
-
-    # XS and PP common methods
-
-    my @PublicMethods = qw/
-        ascii latin1 utf8 pretty indent space_before space_after relaxed canonical allow_nonref
-        allow_blessed convert_blessed filter_json_object filter_json_single_key_object
-        shrink max_depth max_size encode decode decode_prefix allow_unknown
-    /;
-
-    my @Properties = qw/
-        ascii latin1 utf8 indent space_before space_after relaxed canonical allow_nonref
-        allow_blessed convert_blessed shrink max_depth max_size allow_unknown
-    /;
-
-    my @XSOnlyMethods = qw//; # Currently nothing
-
-    my @PublicMethodsSince4_0 = qw/allow_tags/;
-    my @PropertiesSince4_0 = qw/allow_tags/;
-
-    my @PPOnlyMethods = qw/
-        indent_length sort_by
-        allow_singlequote allow_bignum loose allow_barekey escape_slash as_nonblessed
-    /; # JSON::PP specific
-
-
-    # used in _load_xs and _load_pp ($INSTALL_ONLY is not used currently)
-    my $_INSTALL_DONT_DIE = 1; # When _load_xs fails to load XS, don't die.
-    my $_ALLOW_UNSUPPORTED = 0;
-    my $_UNIV_CONV_BLESSED = 0;
-
-
-    # Check the environment variable to decide worker module.
-
-    unless ($JSON::Backend) {
-        $JSON::DEBUG and Carp::carp("Check used worker module...");
-
-        my $backend = exists $ENV{PERL_JSON_BACKEND} ? $ENV{PERL_JSON_BACKEND} : 1;
-
-        if ($backend eq '1') {
-            $backend = 'JSON::XS,JSON::PP';
-        }
-        elsif ($backend eq '0') {
-            $backend = 'JSON::PP';
-        }
-        elsif ($backend eq '2') {
-            $backend = 'JSON::XS';
-        }
-        $backend =~ s/\s+//g;
-
-        my @backend_modules = split /,/, $backend;
-        while (my $module = shift @backend_modules) {
-            if ($module =~ /JSON::XS/) {
-                _load_xs($module, @backend_modules ? $_INSTALL_DONT_DIE : 0);
-            }
-            elsif ($module =~ /JSON::PP/) {
-                _load_pp($module);
-            }
-            elsif ($module =~ /JSON::backportPP/) {
-                _load_pp($module);
-            }
-            else {
-                Carp::croak "The value of environmental variable 'PERL_JSON_BACKEND' is invalid.";
-            }
-            last if $JSON::Backend;
-        }
-    }
-
-
-    sub import {
-        my $pkg = shift;
-        my @what_to_export;
-        my $no_export;
-
-        for my $tag (@_) {
-            if ($tag eq '-support_by_pp') {
-                if (!$_ALLOW_UNSUPPORTED++) {
-                    JSON::Backend::XS
-                        ->support_by_pp(@PPOnlyMethods) if ($JSON::Backend->is_xs);
-                }
-                next;
-            }
-            elsif ($tag eq '-no_export') {
-                $no_export++, next;
-            }
-            elsif ($tag eq '-convert_blessed_universally') {
-                my $org_encode = $JSON::Backend->can('encode');
-                eval q|
-                require B;
-                local $^W;
-                no strict 'refs';
-                *{"${JSON::Backend}\::encode"} = sub {
-                    # only works with Perl 5.18+
-                    local *UNIVERSAL::TO_JSON = sub {
-                        my $b_obj = B::svref_2object( $_[0] );
-                        return    $b_obj->isa('B::HV') ? { %{ $_[0] } }
-                                : $b_obj->isa('B::AV') ? [ @{ $_[0] } ]
-                                : undef
-                                ;
-                    };
-                    $org_encode->(@_);
-                };
-            | if (!$_UNIV_CONV_BLESSED++);
-                next;
-            }
-            push @what_to_export, $tag;
-        }
-
-        return if ($no_export);
-
-        __PACKAGE__->export_to_level(1, $pkg, @what_to_export);
-    }
-
-
-    # OBSOLETED
-
-    sub jsonToObj {
-        my $alternative = 'from_json';
-        if (defined $_[0] and UNIVERSAL::isa($_[0], 'JSON')) {
-            shift @_;
-            $alternative = 'decode';
-        }
-        Carp::carp "'jsonToObj' will be obsoleted. Please use '$alternative' instead.";
-        return JSON::from_json(@_);
-    };
-
-    sub objToJson {
-        my $alternative = 'to_json';
-        if (defined $_[0] and UNIVERSAL::isa($_[0], 'JSON')) {
-            shift @_;
-            $alternative = 'encode';
-        }
-        Carp::carp "'objToJson' will be obsoleted. Please use '$alternative' instead.";
-        JSON::to_json(@_);
-    };
-
-
-    # INTERFACES
-
-    sub to_json($@) {
-        if (
-            ref($_[0]) eq 'JSON'
-                or (@_ > 2 and $_[0] eq 'JSON')
-        ) {
-            Carp::croak "to_json should not be called as a method.";
-        }
-        my $json = JSON->new;
-
-        if (@_ == 2 and ref $_[1] eq 'HASH') {
-            my $opt = $_[1];
-            for my $method (keys %$opt) {
-                $json->$method($opt->{$method});
-            }
-        }
-
-        $json->encode($_[0]);
-    }
-
-
-    sub from_json($@) {
-        if (ref($_[0]) eq 'JSON' or $_[0] eq 'JSON') {
-            Carp::croak "from_json should not be called as a method.";
-        }
-        my $json = JSON->new;
-
-        if (@_ == 2 and ref $_[1] eq 'HASH') {
-            my $opt = $_[1];
-            for my $method (keys %$opt) {
-                $json->$method($opt->{$method});
-            }
-        }
-
-        return $json->decode($_[0]);
-    }
-
-
-
-    sub true {$JSON::true}
-
-    sub false {$JSON::false}
-
-    sub boolean {
-        # might be called as method or as function, so pop() to get the last arg instead of shift() to get the first
-        pop() ? $JSON::true : $JSON::false
-    }
-
-    sub null {undef;}
-
-
-    sub require_xs_version {$RequiredVersion{'JSON::XS'};}
-
-    sub backend {
-        my $proto = shift;
-        $JSON::Backend;
-    }
-
-    #*module = *backend;
-
-
-    sub is_xs {
-        return $_[0]->backend->is_xs;
-    }
-
-
-    sub is_pp {
-        return $_[0]->backend->is_pp;
-    }
-
-
-    sub pureperl_only_methods {@PPOnlyMethods;}
-
-
-    sub property {
-        my ($self, $name, $value) = @_;
-
-        if (@_ == 1) {
-            my %props;
-            for $name (@Properties) {
-                my $method = 'get_' . $name;
-                if ($name eq 'max_size') {
-                    my $value = $self->$method();
-                    $props{$name} = $value == 1 ? 0 : $value;
-                    next;
-                }
-                $props{$name} = $self->$method();
-            }
-            return \%props;
-        }
-        elsif (@_ > 3) {
-            Carp::croak('property() can take only the option within 2 arguments.');
-        }
-        elsif (@_ == 2) {
-            if (my $method = $self->can('get_' . $name)) {
-                if ($name eq 'max_size') {
-                    my $value = $self->$method();
-                    return $value == 1 ? 0 : $value;
-                }
-                $self->$method();
-            }
-        }
-        else {
-            $self->$name($value);
-        }
-
-    }
-
-
-    # INTERNAL
-
-    sub __load_xs {
-        my ($module, $opt) = @_;
-
-        $JSON::DEBUG and Carp::carp "Load $module.";
-        my $required_version = $RequiredVersion{$module} || '';
-
-        eval qq|
-        use $module $required_version ();
-    |;
-
-        if ($@) {
-            if (defined $opt and $opt & $_INSTALL_DONT_DIE) {
-                $JSON::DEBUG and Carp::carp "Can't load $module...($@)";
-                return 0;
-            }
-            Carp::croak $@;
-        }
-        $JSON::BackendModuleXS = $module;
-        return 1;
-    }
-
-    sub _load_xs {
-        my ($module, $opt) = @_;
-        __load_xs($module, $opt) or return;
-
-        my $data = join("", <DATA>); # this code is from Jcode 2.xx.
-        close(DATA);
-        eval $data;
-        JSON::Backend::XS->init($module);
-
-        return 1;
-    };
-
-
-    sub __load_pp {
-        my ($module, $opt) = @_;
-
-        $JSON::DEBUG and Carp::carp "Load $module.";
-        my $required_version = $RequiredVersion{$module} || '';
-
-        eval qq| use $module $required_version () |;
-
-        if ($@) {
-            if ($module eq 'JSON::PP') {
-                $JSON::DEBUG and Carp::carp "Can't load $module ($@), so try to load JSON::backportPP";
-                $module = 'JSON::backportPP';
-                local $^W; # if PP installed but invalid version, backportPP redefines methods.
-                eval qq| require $module |;
-            }
-            Carp::croak $@ if $@;
-        }
-        $JSON::BackendModulePP = $module;
-        return 1;
-    }
-
-    sub _load_pp {
-        my ($module, $opt) = @_;
-        __load_pp($module, $opt);
-
-        JSON::Backend::PP->init($module);
-    };
-
-    #
-    # Helper classes for Backend Module (PP)
-    #
-
-    package JSON::Backend::PP;
-
-    sub init {
-        my ($class, $module) = @_;
-
-        # name may vary, but the module should (always) be a JSON::PP
-
-        local $^W;
-        no strict qw(refs); # this routine may be called after JSON::Backend::XS init was called.
-        *{"JSON::decode_json"} = \&{"JSON::PP::decode_json"};
-        *{"JSON::encode_json"} = \&{"JSON::PP::encode_json"};
-        *{"JSON::is_bool"} = \&{"JSON::PP::is_bool"};
-
-        $JSON::true = ${"JSON::PP::true"};
-        $JSON::false = ${"JSON::PP::false"};
-
-        push @JSON::Backend::PP::ISA, 'JSON::PP';
-        push @JSON::ISA, $class;
-        $JSON::Backend = $class;
-        $JSON::BackendModule = $module;
-        my $version = ${"$class\::VERSION"} = $module->VERSION;
-        $version =~ s/_//;
-        if ($version < 3.99) {
-            push @XSOnlyMethods, qw/allow_tags get_allow_tags/;
-        }
-        else {
-            push @Properties, 'allow_tags';
-        }
-
-        for my $method (@XSOnlyMethods) {
-            *{"JSON::$method"} = sub {
-                Carp::carp("$method is not supported by $module $version.");
-                $_[0];
-            };
-        }
-
-        return 1;
-    }
-
-    sub is_xs {0};
-    sub is_pp {1};
-
-    #
-    # To save memory, the below lines are read only when XS backend is used.
-    #
-
-    package JSON;
-
-    1;
-
-    #
-    # Helper classes for Backend Module (XS)
-    #
-
-    package JSON::Backend::XS;
-
-    sub init {
-        my ($class, $module) = @_;
-
-        local $^W;
-        no strict qw(refs);
-        *{"JSON::decode_json"} = \&{"$module\::decode_json"};
-        *{"JSON::encode_json"} = \&{"$module\::encode_json"};
-        *{"JSON::is_bool"} = \&{"$module\::is_bool"};
-
-        $JSON::true = ${"$module\::true"};
-        $JSON::false = ${"$module\::false"};
-
-        push @JSON::Backend::XS::ISA, $module;
-        push @JSON::ISA, $class;
-        $JSON::Backend = $class;
-        $JSON::BackendModule = $module;
-        ${"$class\::VERSION"} = $module->VERSION;
-
-        if ($module->VERSION < 3) {
-            eval 'package JSON::PP::Boolean';
-            push @{"$module\::Boolean::ISA"}, qw(JSON::PP::Boolean);
-        }
-
-        for my $method (@PPOnlyMethods) {
-            *{"JSON::$method"} = sub {
-                Carp::carp("$method is not supported by $module.");
-                $_[0];
-            };
-        }
-
-        return 1;
-    }
-
-    sub is_xs {1};
-    sub is_pp {0};
-
-    sub support_by_pp {
-        my ($class, @methods) = @_;
-
-        JSON::__load_pp('JSON::PP');
-
-        local $^W;
-        no strict qw(refs);
-
-        for my $method (@methods) {
-            my $pp_method = JSON::PP->can($method) or next;
-            *{"JSON::$method"} = sub {
-                if (!$_[0]->isa('JSON::PP')) {
-                    my $xs_self = $_[0];
-                    my $pp_self = JSON::PP->new;
-                    for (@Properties) {
-                        my $getter = "get_$_";
-                        $pp_self->$_($xs_self->$getter);
-                    }
-                    $_[0] = $pp_self;
-                }
-                $pp_method->(@_);
-            };
-        }
-
-        $JSON::DEBUG and Carp::carp("set -support_by_pp mode.");
-    }
-
-    1;
 }
