@@ -4459,6 +4459,80 @@ B BBBWYWBBB B
     );
 }
 
+# add the bird random entity to the animation
+sub add_cow {
+    my ($s) = @_;
+    my @cow = (
+        q#
+^__^
+(oo)\_______
+(__)\       )/\/
+  ||----w |
+ / |    / |
+#,
+        q#
+^__^
+(oo)\_______
+(__)\       )\/\
+  ||----w |
+  ||     ||
+#);
+
+    my @cow_mask = (
+        q#
+YYYY
+YRRYYYYYYYYY
+YYYYY       YRRR
+  YYYYYYR Y
+ Y Y    Y Y
+#,
+        q#
+ BBBB
+BGGBBBBBBBBB
+BBBBB       BGGG
+  BBBBBBG B
+  BB     BB
+#);
+
+    my $cow_type = int(rand(1));
+    if ($cow_type == 0) {
+        @cow_mask = map {s/G/R/g;
+            $_;} @cow_mask;
+    }
+    elsif ($cow_type == 1) {
+        @cow_mask = map {s/R/G/g;
+            s/Y/R/g;
+            $_;} @cow_mask;
+    }
+
+    my ($sign_x, $sign_y, $sign_z) = $s->entity('signpost')->position();
+
+    my $z1 = $depth{'behind_trees'}; # furthest distance from the camera
+    my $z2 = $sign_z - 1;            # closest distance from the camera
+    my $wb = -12;                    # column to begin at
+    my $hb = 0;                      # row to begin at
+    my $we = $s->width() + 1;        # column to end at
+    my $he = 0;                      # row to end at
+    my $wl = $sign_x + 2;            # column to land at
+    my $hl = $sign_y - 3;            # row to land at
+    my $wait = 20;                   # how many frames to sit on the sign
+
+    #                         begin     end       frames         duration
+    my $path1 = $s->gen_path($wb, $hb, $z1, $wl, $hl, $z2, [ 0, 1, 2, 1 ], 'longest');
+    my $path2 = $s->gen_path($wl, $hl, $z2, $wl, $hl, $z2, [ 3 ], $wait);
+    my $path3 = $s->gen_path($wl, $hl, $z2, $we, $he, $z1, [ 0, 1, 2, 1 ], 'longest');
+
+    $s->new_entity(
+        shape         => \@cow,
+        position      => [ $wb, $hb, $z1 ],
+        callback_args => [ 0, [ @{$path1}, @{$path2}, @{$path3} ] ],
+        die_offscreen => 1,
+        death_cb      => \&random_entity,
+        color         => \@cow_mask,
+        auto_trans    => 1,
+    );
+}
+
 sub init_random_entities {
     my $always = 10000000;
     return({
@@ -4466,6 +4540,7 @@ sub init_random_entities {
         rocket    => [ \&add_rocket, 100 ],
         plane     => [ \&add_plane, 100 ],
         bird      => [ \&add_bird, 100 ],
+        cow       => [ \&add_cow, 100 ],
         turtle    => [ \&add_turtle, 100 ],
         pacman    => [ \&add_pacman, 100 ],
         chicken   => [ \&add_chicken, 100 ],
