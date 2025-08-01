@@ -1,14 +1,14 @@
-WeatherSpect v2.0
-----------------------
-by Kirk Baucom <kbaucom@schizoid.com>  
-http://www.robobunny.com  
-
+WeatherSpect v2.2-pre-alpha-gibberty-joo-etc-etc-software-serious-business
+-----------------
 WeatherSpect provides a reasonably accurate simulation of what the
 weather looks like outside, in ASCII art. It includes rain, snow,
 lightning, sleet, and hail. The windspeed and cloudiness are reflected
 in the velocity and quantity of clouds. There are trees that age,
 reproduce and die over the course of an hour, and a sun and moon that
 follow the actual sun and moonrise. There's also a dancing turtle.
+
+originally by Kirk Baucom <kbaucom@schizoid.com> http://www.robobunny.com
+maintained by root@thedynamiclinker.com since 2025-08-01.
 
 Installation
 ------------
